@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            width: 450px;
+            padding: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .header h2 { font-size: 18px; margin-bottom: 5px; }
+        .header p  { font-size: 12px; opacity: 0.9; }
+
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 14px;
+            border-left: 3px solid #667eea;
+            padding-left: 8px;
+        }
+
+        .input-group { margin-bottom: 10px; }
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .input-row { display: flex; gap: 10px; }
+        .input-row .input-group { flex: 1; }
+
+        button {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .btn-primary  { background: linear-gradient(135deg, #667eea, #764ba2); color: white; margin-bottom: 8px; }
+        .btn-warning  { background: #ffc107; color: #333; }
+        .btn-success  { background: #28a745; color: white; }
+        .btn-danger   { background: #dc3545; color: white; }
+        .btn-secondary{ background: #6c757d; color: white; }
+        .btn-info     { background: #17a2b8; color: white; }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .button-group button { flex: 1; }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        .status-label { font-weight: bold; color: #666; }
+        .status-value { color: #333; }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0 0;
+        }
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            height: 20px;
+            transition: width 0.3s;
+            color: white;
+            font-size: 11px;
+            line-height: 20px;
+            text-align: center;
+            min-width: 30px;
+        }
+
+        .log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            padding: 2px 0;
+            border-bottom: 1px solid #2d2d2d;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #555;
+            cursor: pointer;
+        }
+        .checkbox-label input { width: auto; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2>📦 Product Extractor Pro</h2>
+    <p>Extract Product IDs &amp; WhatsApp Numbers</p>
+</div>
+
+<!-- SETTINGS -->
+<div class="section">
+    <div class="section-title">⚙️ Settings</div>
+    <div class="input-row">
+        <div class="input-group">
+            <label>Start Page</label>
+            <input type="number" id="startPage" min="1" value="1">
+        </div>
+        <div class="input-group">
+            <label>End Page (blank = all)</label>
+            <input type="number" id="endPage" min="1" placeholder="All">
+        </div>
+        <div class="input-group">
+            <label>Batch Size</label>
+            <input type="number" id="batchSize" min="1" max="100" value="5">
+        </div>
+    </div>
+    <div class="input-group">
+        <label>Delay between pages (seconds)</label>
+        <input type="number" id="delay" min="1" max="30" value="2" step="0.5">
+    </div>
+</div>
+
+<!-- DEDUPLICATION -->
+<div class="section">
+    <div class="section-title">🔄 Deduplication</div>
+    <div class="input-group">
+        <label>Deduplication Mode</label>
+        <select id="dedupMode">
+            <option value="none">❌ None — keep all (including duplicates)</option>
+            <option value="product_id" selected>📦 By Product ID — unique products only</option>
+            <option value="whatsapp">📱 By WhatsApp — one product per seller</option>
+            <option value="both">🔗 Both — unique product AND one per seller</option>
+        </select>
+    </div>
+    <div class="input-group">
+        <label>When duplicate found, keep</label>
+        <select id="dedupPriority">
+            <option value="first">First encountered</option>
+            <option value="latest">Latest (newest)</option>
+            <option value="highest_commission">Highest commission</option>
+            <option value="highest_remaining">Highest remaining quantity</option>
+        </select>
+    </div>
+    <div class="input-group">
+        <label class="checkbox-label">
+            <input type="checkbox" id="excludeOwnProducts">
+            Exclude products matching logged-in user's WhatsApp
+        </label>
+    </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="section">
+    <div class="section-title">🎮 Controls</div>
+    <button id="startBtn" class="btn-primary">▶ Start Extraction</button>
+    <div class="button-group">
+        <button id="pauseBtn"  class="btn-warning">⏸ Pause</button>
+        <button id="resumeBtn" class="btn-success">▶ Resume</button>
+        <button id="stopBtn"   class="btn-danger">⏹ Stop</button>
+    </div>
+    <div class="button-group" style="margin-top: 8px;">
+        <button id="dedupBtn"   class="btn-info">🔄 Dedup Now</button>
+        <button id="exportBtn"  class="btn-success">📥 Export CSV</button>
+        <button id="clearBtn"   class="btn-danger">🗑 Clear Data</button>
+        <button id="refreshBtn" class="btn-secondary">↻ Refresh</button>
+    </div>
+</div>
+
+<!-- STATUS -->
+<div class="section">
+    <div class="section-title">📊 Status</div>
+    <div class="status-item">
+        <span class="status-label">Status:</span>
+        <span class="status-value" id="extractorStatus">Idle</span>
+    </div>
+    <div class="status-item">
+        <span class="status-label">Current Page:</span>
+        <span class="status-value" id="currentPage">—</span>
+    </div>
+    <div class="status-item">
+        <span class="status-label">Total Pages:</span>
+        <span class="status-value" id="totalPages">—</span>
+    </div>
+    <div class="status-item">
+        <span class="status-label">Products Collected:</span>
+        <span class="status-value" id="productCount">0</span>
+    </div>
+    <div class="status-item">
+        <span class="status-label">WhatsApp Numbers:</span>
+        <span class="status-value" id="whatsappCount">0</span>
+    </div>
+    <div class="status-item">
+        <span class="status-label">Pages Processed:</span>
+        <span class="status-value" id="pagesProcessed">0</span>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:0%">0%</div>
+    </div>
+</div>
+
+<!-- LOG -->
+<div class="section">
+    <div class="section-title">📋 Activity Log</div>
+    <div id="log" class="log">
+        <div class="log-entry">✨ Extension ready. Click Start to begin.</div>
+    </div>
+    <div class="button-group" style="margin-top:8px;">
+        <button id="clearLogBtn" class="btn-secondary">Clear Log</button>
+    </div>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
